@@ -70,6 +70,7 @@ namespace WMICodeCreator
                     // Add namespaces to the list.
                     string namespaceName = root + "\\" + ns["Name"].ToString();
 
+                    //cross thread update
                     this.cmbNameSpaces.Invoke((MethodInvoker)delegate {
                         // Running on the UI thread
                         this.cmbNameSpaces.Items.Add(namespaceName);
@@ -95,6 +96,64 @@ namespace WMICodeCreator
                 QueueUserWorkItem(
                 new System.Threading.WaitCallback(
                 this.AddNamespacesToTargetList));
+        }
+
+        private void cmbNameSpaces_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.lstClasses.Items.Clear();
+            System.Threading.ThreadPool.
+                QueueUserWorkItem(
+                new System.Threading.WaitCallback(
+                this.AddClassesToList));
+        }
+
+
+        //-------------------------------------------------------------------------
+        // Populates the event tab's target class list with classes
+        // that contain methods.
+        //-------------------------------------------------------------------------
+        private void AddClassesToList(object o)
+        {
+            try
+            {
+                // Performs WMI object query on the
+                // selected namespace.
+                string wmiclass = "";
+                this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+                {
+                    wmiclass = cmbNameSpaces.Text;
+                });
+
+                ManagementObjectSearcher searcher =
+                    new ManagementObjectSearcher(
+                    new ManagementScope(
+                    wmiclass),
+                    new WqlObjectQuery(
+                    "select * from meta_class"),
+                    null);
+                foreach (ManagementClass wmiClass in
+                    searcher.Get())
+                {
+                    foreach (QualifierData qd in wmiClass.Qualifiers)
+                    {
+                        // If the class is dynamic or static, add it to the class
+                        // list on the query tab.
+                        if (qd.Name.Equals("dynamic") || qd.Name.Equals("static"))
+                        {
+                            this.lstClasses.Invoke((MethodInvoker)delegate
+                            {
+                                // Running on the UI thread
+                                this.lstClasses.Items.Add(wmiClass["__CLASS"].ToString());
+                            });
+
+                        }
+                    }
+                }
+            }
+            catch (ManagementException e)
+            {
+                MessageBox.Show("Error creating a list of classes: " + e.Message);
+            }
         }
     }
 }
