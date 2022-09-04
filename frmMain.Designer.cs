@@ -76,12 +76,14 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageCSharpCode = new System.Windows.Forms.TabPage();
-            this.tabPageSQLTable = new System.Windows.Forms.TabPage();
-            this.tabPageSQLStoredProcedures = new System.Windows.Forms.TabPage();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.rtbCSharp = new System.Windows.Forms.RichTextBox();
+            this.tabPageSQLTable = new System.Windows.Forms.TabPage();
             this.rtbSQLTable = new System.Windows.Forms.RichTextBox();
+            this.tabPageSQLStoredProcedures = new System.Windows.Forms.TabPage();
             this.rtbStoredPtrocedures = new System.Windows.Forms.RichTextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tabClassReport = new System.Windows.Forms.TabPage();
+            this.rtbClassReport = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -92,6 +94,7 @@
             this.tabPageCSharpCode.SuspendLayout();
             this.tabPageSQLTable.SuspendLayout();
             this.tabPageSQLStoredProcedures.SuspendLayout();
+            this.tabClassReport.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -414,6 +417,7 @@
             this.lstClasses.TabIndex = 5;
             this.toolTip1.SetToolTip(this.lstClasses, "Multiple Selections are allowedc. Select interesting classes and then generate co" +
         "de for all of them. ");
+            this.lstClasses.SelectedIndexChanged += new System.EventHandler(this.lstClasses_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -481,6 +485,7 @@
             // 
             // tabControl1
             // 
+            this.tabControl1.Controls.Add(this.tabClassReport);
             this.tabControl1.Controls.Add(this.tabPageCSharpCode);
             this.tabControl1.Controls.Add(this.tabPageSQLTable);
             this.tabControl1.Controls.Add(this.tabPageSQLStoredProcedures);
@@ -503,6 +508,15 @@
             this.tabPageCSharpCode.Text = "C# Code";
             this.tabPageCSharpCode.UseVisualStyleBackColor = true;
             // 
+            // rtbCSharp
+            // 
+            this.rtbCSharp.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbCSharp.Location = new System.Drawing.Point(3, 3);
+            this.rtbCSharp.Name = "rtbCSharp";
+            this.rtbCSharp.Size = new System.Drawing.Size(623, 444);
+            this.rtbCSharp.TabIndex = 0;
+            this.rtbCSharp.Text = "";
+            // 
             // tabPageSQLTable
             // 
             this.tabPageSQLTable.Controls.Add(this.rtbSQLTable);
@@ -514,6 +528,15 @@
             this.tabPageSQLTable.Text = "MSSQL Table Definition";
             this.tabPageSQLTable.UseVisualStyleBackColor = true;
             // 
+            // rtbSQLTable
+            // 
+            this.rtbSQLTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbSQLTable.Location = new System.Drawing.Point(3, 3);
+            this.rtbSQLTable.Name = "rtbSQLTable";
+            this.rtbSQLTable.Size = new System.Drawing.Size(623, 444);
+            this.rtbSQLTable.TabIndex = 1;
+            this.rtbSQLTable.Text = "";
+            // 
             // tabPageSQLStoredProcedures
             // 
             this.tabPageSQLStoredProcedures.Controls.Add(this.rtbStoredPtrocedures);
@@ -524,24 +547,6 @@
             this.tabPageSQLStoredProcedures.Text = "MSSQL Stored Procedures";
             this.tabPageSQLStoredProcedures.UseVisualStyleBackColor = true;
             // 
-            // rtbCSharp
-            // 
-            this.rtbCSharp.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbCSharp.Location = new System.Drawing.Point(3, 3);
-            this.rtbCSharp.Name = "rtbCSharp";
-            this.rtbCSharp.Size = new System.Drawing.Size(623, 444);
-            this.rtbCSharp.TabIndex = 0;
-            this.rtbCSharp.Text = "";
-            // 
-            // rtbSQLTable
-            // 
-            this.rtbSQLTable.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbSQLTable.Location = new System.Drawing.Point(3, 3);
-            this.rtbSQLTable.Name = "rtbSQLTable";
-            this.rtbSQLTable.Size = new System.Drawing.Size(623, 444);
-            this.rtbSQLTable.TabIndex = 1;
-            this.rtbSQLTable.Text = "";
-            // 
             // rtbStoredPtrocedures
             // 
             this.rtbStoredPtrocedures.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -550,6 +555,25 @@
             this.rtbStoredPtrocedures.Size = new System.Drawing.Size(629, 450);
             this.rtbStoredPtrocedures.TabIndex = 1;
             this.rtbStoredPtrocedures.Text = "";
+            // 
+            // tabClassReport
+            // 
+            this.tabClassReport.Controls.Add(this.rtbClassReport);
+            this.tabClassReport.Location = new System.Drawing.Point(4, 29);
+            this.tabClassReport.Name = "tabClassReport";
+            this.tabClassReport.Size = new System.Drawing.Size(629, 450);
+            this.tabClassReport.TabIndex = 3;
+            this.tabClassReport.Text = "Class Report";
+            this.tabClassReport.UseVisualStyleBackColor = true;
+            // 
+            // rtbClassReport
+            // 
+            this.rtbClassReport.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbClassReport.Location = new System.Drawing.Point(0, 0);
+            this.rtbClassReport.Name = "rtbClassReport";
+            this.rtbClassReport.Size = new System.Drawing.Size(629, 450);
+            this.rtbClassReport.TabIndex = 0;
+            this.rtbClassReport.Text = "";
             // 
             // frmMain
             // 
@@ -563,6 +587,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "frmMain";
             this.Text = "WMI Code Generator";
+            this.Load += new System.EventHandler(this.frmMain_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
@@ -578,6 +603,7 @@
             this.tabPageCSharpCode.ResumeLayout(false);
             this.tabPageSQLTable.ResumeLayout(false);
             this.tabPageSQLStoredProcedures.ResumeLayout(false);
+            this.tabClassReport.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -636,6 +662,8 @@
         private System.Windows.Forms.RichTextBox rtbCSharp;
         private System.Windows.Forms.RichTextBox rtbSQLTable;
         private System.Windows.Forms.RichTextBox rtbStoredPtrocedures;
+        private System.Windows.Forms.TabPage tabClassReport;
+        private System.Windows.Forms.RichTextBox rtbClassReport;
     }
 }
 

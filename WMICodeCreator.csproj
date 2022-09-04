@@ -59,6 +59,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeConvert.cs" />
+    <Compile Include="WMIClass.cs" />
     <None Include="app.manifest" />
     <None Include="WMICodeCreator.cs">
       <SubType>Form</SubType>
