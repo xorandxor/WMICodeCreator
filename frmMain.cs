@@ -21,38 +21,53 @@ namespace WMICodeCreator
 
         private void toolStripButtonGenerate_Click(object sender, EventArgs e)
         {
-
+            rtbSQLTable.Text = GenerateSQLTable();
         }
 
-        private static string GenerateSQLTable()
+        private string GenerateSQLTable()
         {
-            USE[wmi]
-GO
 
-/****** Object:  Table [dbo].[table]    Script Date: 9/4/2022 12:56:05 AM ******/
-SET ANSI_NULLS ON
-GO
+            StringBuilder sb = new StringBuilder();
 
-SET QUOTED_IDENTIFIER ON
-GO
+            ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
+            ManagementClass mc = new ManagementClass(this.cmbNameSpaces.Text, this.lstClasses.SelectedItem.ToString(), op);
+            mc.Options.UseAmendedQualifiers = true;
 
-CREATE TABLE[dbo].[table](
 
-    [id][bigint] IDENTITY(1, 1) NOT NULL,
+            sb.AppendLine("USE["+this.txtDatabaseName.Text+"]");
+            sb.AppendLine("GO");
+            sb.AppendLine("SET ANSI_NULLS ON");
+            sb.AppendLine("GO");
+            sb.AppendLine("SET QUOTED_IDENTIFIER ON");
+            sb.AppendLine("GO");
+            sb.AppendLine("CREATE TABLE[dbo].[table](");
+            sb.AppendLine("  [id] [bigint] IDENTITY(1, 1) NOT NULL,");
+            sb.AppendLine("  [created] [datetime] NOT NULL,");
 
-    [dtg] [datetime] NOT NULL,
+            foreach (PropertyData pd in mc.Properties)
+            {
+                string sqltype = TypeConvert.CimTypeToMSSQLType(pd.Type.ToString());
+                if (sqltype == "nvarchar")
+                {
+                    sb.AppendLine("  ["+pd.Name+"] [nvarchar] (4000) NULL,");
+                }
+                else
+                {
+                    sb.AppendLine("  [" + pd.Name + "] ["+sqltype+"] NULL,");
+                }
+            }
+            sb.AppendLine("CONSTRAINT [PK_table] PRIMARY KEY CLUSTERED");
+            sb.AppendLine("(");
+            sb.AppendLine("[id] ASC");
+            sb.Append(") WITH (PAD_INDEX=OFF, STATISTICS_NORECOMPUTE=OFF, ");
+            sb.Append("IGNORE_DUP_KEY=OFF, ALLOW_ROW_LOCKS=ON, ALLOW_PAGE_LOCKS=ON,");
+            sb.AppendLine("OPTIMIZE_FOR_SEQUENTIAL_KEY=OFF) ON [PRIMARY]");
+            sb.AppendLine(") ON [PRIMARY]");
+            sb.AppendLine("GO");
+            sb.AppendLine("ALTER TABLE[dbo].[table] ADD CONSTRAINT[DF_table_dtg]  DEFAULT(getdate()) FOR [created]");
+            sb.AppendLine("GO");
 
-    [field] [nvarchar] (50) NULL,
- CONSTRAINT[PK_table] PRIMARY KEY CLUSTERED
-(
-
-   [id] ASC
-)WITH(PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON[PRIMARY]
-) ON[PRIMARY]
-GO
-
-ALTER TABLE[dbo].[table] ADD CONSTRAINT[DF_table_dtg]  DEFAULT(getdate()) FOR[dtg]
-GO
+            return sb.ToString();
 
         }
 
@@ -200,10 +215,10 @@ GO
                 ManagementClass mc = new ManagementClass(this.cmbNameSpaces.Text, this.lstClasses.SelectedItem.ToString(), op);
                 mc.Options.UseAmendedQualifiers = true;
                 sb.AppendLine();
-                sb.AppendLine("============================================================================");
+                sb.AppendLine("============= =====================================================");
 
-                sb.AppendLine("== Report for namespace ["+cmbNameSpaces.Text+"] and class ["+lstClasses.Text+"] ==");
-                sb.AppendLine("============================================================================");
+.                sb.AppendLine("== Report for namespace ["+cmbNameSpaces.Text+"] and class ["+lstClasses.Text+"] ==");
+                sb.AppendLine("==================================================================");
                 sb.AppendLine();
 
                 sb.AppendLine("----------------------------------------------------------------");

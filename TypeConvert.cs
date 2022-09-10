@@ -1,38 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WMICodeCreator
+﻿namespace WMICodeCreator
 {
     public static class TypeConvert
     {
         public static string CimTypeToSystemType(string LowerCaseCimType)
         {
-            string output = "";
-            if (LowerCaseCimType.ToLower() == "string")
-                output = "string";
+            string output = "ERROR";
 
-            if(LowerCaseCimType.ToLower().Contains("int"))
+            if (LowerCaseCimType.ToLower() == "string")
             {
-                //some kinda int bullshit
+                output = "string";
+            }
+            if (LowerCaseCimType.ToLower().Contains("int"))
+            {
                 output = "int";
             }
             if (LowerCaseCimType.ToLower().Contains("bool"))
             {
                 output = "bool";
             }
+            if (LowerCaseCimType.ToLower().Contains("datetime"))
+            {
+                output = "DateTime";
+            }
+
             return output;
-
-
-
-
-
-
         }
+        public static string CimTypeToMSSQLType(string LowerCaseCimType)
+        {
+            string output = "ERROR";
+
+            if (LowerCaseCimType.ToLower() == "string")
+            {
+                output = "nvarchar";
+            }
+            if (LowerCaseCimType.ToLower().Contains("int"))
+            {
+                output = "bigint";
+            }
+            if (LowerCaseCimType.ToLower().Contains("bool"))
+            {
+                output = "bit";
+            }
+            if (LowerCaseCimType.ToLower().Contains("datetime"))
+            {
+                output = "datetime";
+            }
+            
 
 
-
+            return output;
+        }
     }
 }
