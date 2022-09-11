@@ -75,18 +75,18 @@
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabClassReport = new System.Windows.Forms.TabPage();
+            this.rtbClassReport = new System.Windows.Forms.RichTextBox();
             this.tabPageCSharpCode = new System.Windows.Forms.TabPage();
             this.rtbCSharp = new System.Windows.Forms.RichTextBox();
             this.tabPageSQLTable = new System.Windows.Forms.TabPage();
+            this.rtbSQLTable = new System.Windows.Forms.RichTextBox();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.txtDatabaseName = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.tabPageSQLStoredProcedures = new System.Windows.Forms.TabPage();
             this.rtbStoredPtrocedures = new System.Windows.Forms.RichTextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.tabClassReport = new System.Windows.Forms.TabPage();
-            this.rtbClassReport = new System.Windows.Forms.RichTextBox();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtDatabaseName = new System.Windows.Forms.TextBox();
-            this.rtbSQLTable = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -94,11 +94,11 @@
             this.panel4.SuspendLayout();
             this.panel3.SuspendLayout();
             this.tabControl1.SuspendLayout();
+            this.tabClassReport.SuspendLayout();
             this.tabPageCSharpCode.SuspendLayout();
             this.tabPageSQLTable.SuspendLayout();
-            this.tabPageSQLStoredProcedures.SuspendLayout();
-            this.tabClassReport.SuspendLayout();
             this.panel5.SuspendLayout();
+            this.tabPageSQLStoredProcedures.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -157,7 +157,6 @@
             this.toolStripButtonGenerate.Name = "toolStripButtonGenerate";
             this.toolStripButtonGenerate.Size = new System.Drawing.Size(149, 27);
             this.toolStripButtonGenerate.Text = "Generate Code";
-            this.toolStripButtonGenerate.Click += new System.EventHandler(this.toolStripButtonGenerate_Click);
             // 
             // menuStrip1
             // 
@@ -501,6 +500,25 @@
             this.tabControl1.Size = new System.Drawing.Size(637, 483);
             this.tabControl1.TabIndex = 0;
             // 
+            // tabClassReport
+            // 
+            this.tabClassReport.Controls.Add(this.rtbClassReport);
+            this.tabClassReport.Location = new System.Drawing.Point(4, 29);
+            this.tabClassReport.Name = "tabClassReport";
+            this.tabClassReport.Size = new System.Drawing.Size(629, 450);
+            this.tabClassReport.TabIndex = 3;
+            this.tabClassReport.Text = "Class Report";
+            this.tabClassReport.UseVisualStyleBackColor = true;
+            // 
+            // rtbClassReport
+            // 
+            this.rtbClassReport.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbClassReport.Location = new System.Drawing.Point(0, 0);
+            this.rtbClassReport.Name = "rtbClassReport";
+            this.rtbClassReport.Size = new System.Drawing.Size(629, 450);
+            this.rtbClassReport.TabIndex = 0;
+            this.rtbClassReport.Text = "";
+            // 
             // tabPageCSharpCode
             // 
             this.tabPageCSharpCode.Controls.Add(this.rtbCSharp);
@@ -533,6 +551,45 @@
             this.tabPageSQLTable.Text = "MSSQL Table Definition";
             this.tabPageSQLTable.UseVisualStyleBackColor = true;
             // 
+            // rtbSQLTable
+            // 
+            this.rtbSQLTable.DetectUrls = false;
+            this.rtbSQLTable.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rtbSQLTable.Location = new System.Drawing.Point(3, 44);
+            this.rtbSQLTable.Name = "rtbSQLTable";
+            this.rtbSQLTable.Size = new System.Drawing.Size(623, 403);
+            this.rtbSQLTable.TabIndex = 3;
+            this.rtbSQLTable.Text = "";
+            this.rtbSQLTable.TextChanged += new System.EventHandler(this.rtbSQLTable_TextChanged);
+            this.rtbSQLTable.DoubleClick += new System.EventHandler(this.rtbSQLTable_DoubleClick);
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.txtDatabaseName);
+            this.panel5.Controls.Add(this.label3);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(3, 3);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(623, 41);
+            this.panel5.TabIndex = 2;
+            // 
+            // txtDatabaseName
+            // 
+            this.txtDatabaseName.Location = new System.Drawing.Point(130, 8);
+            this.txtDatabaseName.Name = "txtDatabaseName";
+            this.txtDatabaseName.Size = new System.Drawing.Size(199, 27);
+            this.txtDatabaseName.TabIndex = 1;
+            this.txtDatabaseName.Text = "WMI";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 11);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(119, 20);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Database Name:";
+            // 
             // tabPageSQLStoredProcedures
             // 
             this.tabPageSQLStoredProcedures.Controls.Add(this.rtbStoredPtrocedures);
@@ -551,61 +608,6 @@
             this.rtbStoredPtrocedures.Size = new System.Drawing.Size(629, 450);
             this.rtbStoredPtrocedures.TabIndex = 1;
             this.rtbStoredPtrocedures.Text = "";
-            // 
-            // tabClassReport
-            // 
-            this.tabClassReport.Controls.Add(this.rtbClassReport);
-            this.tabClassReport.Location = new System.Drawing.Point(4, 29);
-            this.tabClassReport.Name = "tabClassReport";
-            this.tabClassReport.Size = new System.Drawing.Size(629, 450);
-            this.tabClassReport.TabIndex = 3;
-            this.tabClassReport.Text = "Class Report";
-            this.tabClassReport.UseVisualStyleBackColor = true;
-            // 
-            // rtbClassReport
-            // 
-            this.rtbClassReport.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbClassReport.Location = new System.Drawing.Point(0, 0);
-            this.rtbClassReport.Name = "rtbClassReport";
-            this.rtbClassReport.Size = new System.Drawing.Size(629, 450);
-            this.rtbClassReport.TabIndex = 0;
-            this.rtbClassReport.Text = "";
-            // 
-            // panel5
-            // 
-            this.panel5.Controls.Add(this.txtDatabaseName);
-            this.panel5.Controls.Add(this.label3);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(3, 3);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(623, 41);
-            this.panel5.TabIndex = 2;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(7, 11);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(119, 20);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Database Name:";
-            // 
-            // txtDatabaseName
-            // 
-            this.txtDatabaseName.Location = new System.Drawing.Point(130, 8);
-            this.txtDatabaseName.Name = "txtDatabaseName";
-            this.txtDatabaseName.Size = new System.Drawing.Size(199, 27);
-            this.txtDatabaseName.TabIndex = 1;
-            this.txtDatabaseName.Text = "WMI";
-            // 
-            // rtbSQLTable
-            // 
-            this.rtbSQLTable.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtbSQLTable.Location = new System.Drawing.Point(3, 44);
-            this.rtbSQLTable.Name = "rtbSQLTable";
-            this.rtbSQLTable.Size = new System.Drawing.Size(623, 403);
-            this.rtbSQLTable.TabIndex = 3;
-            this.rtbSQLTable.Text = "";
             // 
             // frmMain
             // 
@@ -632,12 +634,12 @@
             this.panel4.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
+            this.tabClassReport.ResumeLayout(false);
             this.tabPageCSharpCode.ResumeLayout(false);
             this.tabPageSQLTable.ResumeLayout(false);
-            this.tabPageSQLStoredProcedures.ResumeLayout(false);
-            this.tabClassReport.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
+            this.tabPageSQLStoredProcedures.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

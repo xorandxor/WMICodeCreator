@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Management;
 using System.Text;
+using System.Windows.Forms;
 
 namespace WMICodeCreator
 {
@@ -19,74 +12,188 @@ namespace WMICodeCreator
             InitializeComponent();
         }
 
-        private void toolStripButtonGenerate_Click(object sender, EventArgs e)
-        {
-            rtbSQLTable.Text = GenerateSQLTable();
-        }
+        
 
-        private string GenerateSQLTable()
+        private void Generate_CSharp_Class(object o)
         {
+            string nameSpaceName = "";
+            string className = "";
+            string classDescription = "";
+
+            //cross thread update
+            this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                nameSpaceName = cmbNameSpaces.Text;
+            });
+
+            //cross thread update
+            this.lstClasses.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                className = lstClasses.SelectedItem.ToString();
+            });
+
+            // this will be used for the name of the class in C# 
+            // it will look something like root_cimv2_win32_process
+
+            string classObjectName = nameSpaceName.Replace("\\", "_") + "_" + className;
+
 
             StringBuilder sb = new StringBuilder();
-
             ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
-            ManagementClass mc = new ManagementClass(this.cmbNameSpaces.Text, this.lstClasses.SelectedItem.ToString(), op);
+            ManagementClass mc = new ManagementClass(nameSpaceName, className, op);
             mc.Options.UseAmendedQualifiers = true;
 
+            foreach(QualifierData qd in mc.Qualifiers)
+            {
+                if(qd.Name.ToLower() == "description")
+                {
+                    classDescription = qd.Value.ToString();
+                }
+            }
 
-            sb.AppendLine("USE["+this.txtDatabaseName.Text+"]");
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Text;");
+            sb.AppendLine("using System.Management;");
+            sb.AppendLine("using System.IO;");
+            sb.AppendLine();
+            sb.AppendLine("namespace WMIObjects");
+            sb.AppendLine("{");
+
+            sb.AppendLine("    <summary>" + classDescription + "</summary>");
+            sb.AppendLine("    public class " + classObjectName);
+            sb.AppendLine("    {");
+            sb.AppendLine("        // List of Key Properties that can be used to uniquely identify this WMI Object");
+            sb.AppendLine("        public list<string> KeyProperties = new list<string>();");
+            sb.AppendLine();
+            foreach(PropertyData propertyData in mc.Properties)
+            {
+                foreach(QualifierData qd in propertyData.Qualifiers)
+                {
+                    if(qd.Name.ToLower() == "description")
+                    {
+                        string desc = qd.Value.ToString();
+                        if(desc.Length > 120)
+                        {
+                            desc = desc.Substring(0, 120);
+                        }
+                        sb.AppendLine("        // " + desc.Replace("\n", " "));
+                    }
+                }
+                sb.AppendLine("        public " + TypeConvert.CimTypeToSystemType(propertyData.Type.ToString().ToLower()) + " " + propertyData.Name + ";");
+                sb.AppendLine();
+
+            }
+
+            sb.AppendLine("    }");
+
+
+
+
+            sb.AppendLine("}");
+
+
+
+
+            //cross thread update
+            this.rtbCSharp.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                rtbCSharp.Text = sb.ToString();
+            });
+        }
+
+        private void Generate_SQL_Table(object o)
+        {
+
+            string nameSpaceName = "";
+            string className = "";
+            string databaseName = "";
+
+            //cross thread update
+            this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                nameSpaceName = cmbNameSpaces.Text;
+            });
+
+            //cross thread update
+            this.lstClasses.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                className = lstClasses.SelectedItem.ToString();
+            });
+
+            //cross thread update
+            this.txtDatabaseName.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                databaseName = txtDatabaseName.Text.ToString();
+            });
+
+
+
+            StringBuilder sb = new StringBuilder();
+            ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
+            ManagementClass mc = new ManagementClass(nameSpaceName, className, op);
+            mc.Options.UseAmendedQualifiers = true;
+
+            sb.AppendLine("USE[" + databaseName + "]");
             sb.AppendLine("GO");
             sb.AppendLine("SET ANSI_NULLS ON");
             sb.AppendLine("GO");
             sb.AppendLine("SET QUOTED_IDENTIFIER ON");
             sb.AppendLine("GO");
-            sb.AppendLine("CREATE TABLE[dbo].[table](");
-            sb.AppendLine("  [id] [bigint] IDENTITY(1, 1) NOT NULL,");
-            sb.AppendLine("  [created] [datetime] NOT NULL,");
+            sb.AppendLine("CREATE TABLE[dbo].["+className+"](");
+            sb.AppendLine("    [Id] [bigint] IDENTITY(1, 1) NOT NULL,");
+            sb.AppendLine("    [Created] [datetime] NOT NULL,");
+            sb.AppendLine("    [Hostname] [nvarchar] (255) NOT NULL,");
+
 
             foreach (PropertyData pd in mc.Properties)
             {
                 string sqltype = TypeConvert.CimTypeToMSSQLType(pd.Type.ToString());
                 if (sqltype == "nvarchar")
                 {
-                    sb.AppendLine("  ["+pd.Name+"] [nvarchar] (4000) NULL,");
+                    sb.AppendLine("    [" + pd.Name + "] [nvarchar] (4000) NULL,");
                 }
                 else
                 {
-                    sb.AppendLine("  [" + pd.Name + "] ["+sqltype+"] NULL,");
+                    sb.AppendLine("    [" + pd.Name + "] [" + sqltype + "] NULL,");
                 }
             }
-            sb.AppendLine("CONSTRAINT [PK_table] PRIMARY KEY CLUSTERED");
+            sb.AppendLine("CONSTRAINT [PK_"+className+"] PRIMARY KEY CLUSTERED");
             sb.AppendLine("(");
             sb.AppendLine("[id] ASC");
-            sb.Append(") WITH (PAD_INDEX=OFF, STATISTICS_NORECOMPUTE=OFF, ");
+            sb.Append(") WITH ( PAD_INDEX=OFF, STATISTICS_NORECOMPUTE=OFF, ");
             sb.Append("IGNORE_DUP_KEY=OFF, ALLOW_ROW_LOCKS=ON, ALLOW_PAGE_LOCKS=ON,");
             sb.AppendLine("OPTIMIZE_FOR_SEQUENTIAL_KEY=OFF) ON [PRIMARY]");
             sb.AppendLine(") ON [PRIMARY]");
             sb.AppendLine("GO");
-            sb.AppendLine("ALTER TABLE[dbo].[table] ADD CONSTRAINT[DF_table_dtg]  DEFAULT(getdate()) FOR [created]");
+            sb.AppendLine("ALTER TABLE[dbo].["+className+"] ADD CONSTRAINT[DF_"+className+"_dtg]  DEFAULT(getdate()) FOR [created]");
             sb.AppendLine("GO");
 
-            return sb.ToString();
+            //cross thread update
+            this.rtbSQLTable.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                rtbSQLTable.Text = sb.ToString();
+            });
 
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
         }
 
         private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
         {
-
         }
 
         private void label2_Click(object sender, EventArgs e)
         {
-
         }
-
-
 
         //-------------------------------------------------------------------------
         // Calls the AddNamespacesToTargetListRecursive method to start with the
@@ -105,7 +212,7 @@ namespace WMICodeCreator
         {
             try
             {
-                // Enumerates all WMI instances of 
+                // Enumerates all WMI instances of
                 // __namespace WMI class.
                 ManagementClass nsClass =
                     new ManagementClass(
@@ -119,22 +226,19 @@ namespace WMICodeCreator
                     string namespaceName = root + "\\" + ns["Name"].ToString();
 
                     //cross thread update
-                    this.cmbNameSpaces.Invoke((MethodInvoker)delegate {
+                    this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+                    {
                         // Running on the UI thread
                         this.cmbNameSpaces.Items.Add(namespaceName);
                     });
 
-                    
                     AddNamespacesToTargetListRecursive(namespaceName);
                 }
-
             }
             catch (ManagementException e)
             {
                 MessageBox.Show("Error creating a list of namespaces: " + e.Message);
             }
-
-
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)
@@ -154,7 +258,6 @@ namespace WMICodeCreator
                 new System.Threading.WaitCallback(
                 this.AddClassesToList));
         }
-
 
         //-------------------------------------------------------------------------
         // Populates the event tab's target class list with classes
@@ -193,7 +296,6 @@ namespace WMICodeCreator
                                 // Running on the UI thread
                                 this.lstClasses.Items.Add(wmiClass["__CLASS"].ToString());
                             });
-
                         }
                     }
                 }
@@ -204,32 +306,50 @@ namespace WMICodeCreator
             }
         }
 
-        private void lstClasses_SelectedIndexChanged(object sender, EventArgs e)
+
+        private void Generate_Class_report(object o)
         {
+            string nameSpaceName = "";
+            string className = "";
+
+            //cross thread update
+            this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                nameSpaceName = cmbNameSpaces.Text;
+            });
+
+            //cross thread update
+            this.lstClasses.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                className = lstClasses.SelectedItem.ToString();
+            });
+
+
+
+
             StringBuilder sb = new StringBuilder();
             try
             {
                 // Gets the property qualifiers.
                 ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
 
-                ManagementClass mc = new ManagementClass(this.cmbNameSpaces.Text, this.lstClasses.SelectedItem.ToString(), op);
+                ManagementClass mc = new ManagementClass(nameSpaceName, className, op);
                 mc.Options.UseAmendedQualifiers = true;
                 sb.AppendLine();
-                sb.AppendLine("============= =====================================================");
-
-.                sb.AppendLine("== Report for namespace ["+cmbNameSpaces.Text+"] and class ["+lstClasses.Text+"] ==");
+                sb.AppendLine("==================================================================");
+                sb.AppendLine("== Report for namespace [" + nameSpaceName + "] and class [" + className + "] ==");
                 sb.AppendLine("==================================================================");
                 sb.AppendLine();
-
                 sb.AppendLine("----------------------------------------------------------------");
                 sb.AppendLine("- Class Qualifiers:");
                 sb.AppendLine("----------------------------------------------------------------");
 
-                foreach(QualifierData qdc in mc.Qualifiers)
+                foreach (QualifierData qdc in mc.Qualifiers)
                 {
-                    sb.AppendLine("    - Class Qualifier: [" + qdc.Name + "] = [" + qdc.Value +"]");
+                    sb.AppendLine("    - Class Qualifier: [" + qdc.Name + "] = [" + qdc.Value + "]");
                 }
-
 
                 sb.AppendLine();
 
@@ -281,9 +401,7 @@ namespace WMICodeCreator
                         sb.AppendLine("       - number of properties: " + pds.Value.ToString());
                     }
 
-
                     sb.AppendLine();
-
                 }
 
                 if (mc.Methods.Count > 0)
@@ -295,20 +413,19 @@ namespace WMICodeCreator
                     foreach (MethodData method_data in mc.Methods)
                     {
                         sb.AppendLine("Method Property: [" + method_data.Name + "] ");
-                        foreach(QualifierData mqd in method_data.Qualifiers)
+                        foreach (QualifierData mqd in method_data.Qualifiers)
                         {
                             sb.AppendLine("   method property qualifier: " + mqd.Name + " = " + mqd.Value);
                         }
                     }
                 }
-                    sb.AppendLine("----------------------------------------------------------------");
+                sb.AppendLine("----------------------------------------------------------------");
                 sb.AppendLine("- Properties:");
                 sb.AppendLine("----------------------------------------------------------------");
 
                 foreach (PropertyData dataObject in mc.Properties)
                 {
-
-                    sb.AppendLine("Property: [" + dataObject.Name + "] CimType: [" + dataObject.Type.ToString() + "] is Array: [" + dataObject.IsArray.ToString()+"]");
+                    sb.AppendLine("Property: [" + dataObject.Name + "] CimType: [" + dataObject.Type.ToString() + "] is Array: [" + dataObject.IsArray.ToString() + "]");
                     foreach (QualifierData tmp in dataObject.Qualifiers)
                     {
                         if (tmp.Name.ToLower() == "key")
@@ -356,29 +473,38 @@ namespace WMICodeCreator
                             }
                             sb.Append("\n");
                         }
-
-                    }    
-
+                    }
 
                     sb.AppendLine();
 
-
-
-//                 this.PropertyList.Items.Add(
-  //                      dataObject.Name);
-    //                propertyCount++;
                 }
 
-                rtbClassReport.Text = sb.ToString();
-                rtbClassReport.SelectedText = "Report";
-      //          this.PropertyStatus.Text =
-      //              propertyCount + " properties found.";
+                //cross thread update
+                this.rtbClassReport.Invoke((MethodInvoker)delegate
+                {
+                    // Running on the UI thread
+                    rtbClassReport.Text = sb.ToString();
+                });
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
-               // this.PropertyStatus.Text = ex.Message;
             }
+        }
+
+
+        private void lstClasses_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(
+                this.Generate_Class_report));
+
+            System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(
+                this.Generate_SQL_Table));
+            
+            System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(
+                this.Generate_CSharp_Class));
+
         }
 
         private void frmMain_Load(object sender, EventArgs e)
@@ -389,11 +515,21 @@ namespace WMICodeCreator
                 new System.Threading.WaitCallback(
                 this.AddNamespacesToTargetList));
             System.Threading.Thread.Sleep(1000);
-            if(cmbNameSpaces.Items.Contains(@"root\CIMV2") )
+            if (cmbNameSpaces.Items.Contains(@"root\CIMV2"))
             {
                 cmbNameSpaces.SelectedItem = @"root\CIMV2";
             }
         }
+
+        private void rtbSQLTable_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rtbSQLTable_DoubleClick(object sender, EventArgs e)
+        {
+            Clipboard.SetText(rtbSQLTable.Text);
+            MessageBox.Show("Copied!");
+        }
     }
 }
-

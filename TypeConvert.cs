@@ -22,6 +22,10 @@
             {
                 output = "DateTime";
             }
+            if (LowerCaseCimType.ToLower().Contains("real32"))
+            {
+                output = "double";
+            }
 
             return output;
         }
