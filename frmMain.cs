@@ -5,6 +5,9 @@ using System.Windows.Forms;
 
 namespace WMICodeCreator
 {
+    /// <summary>
+    ///
+    /// </summary>
     public partial class frmMain : Form
     {
         public frmMain()
@@ -354,11 +357,15 @@ namespace WMICodeCreator
             sb.AppendLine();
             sb.AppendLine("namespace WMIObjects");
             sb.AppendLine("{");
-
-            sb.AppendLine("    <summary>" + classDescription + "</summary>");
+            /// <summary>
+            ///
+            /// </summary>
+            sb.AppendLine("    /// <summary>");
+            sb.AppendLine("    /// " + classDescription);
+            sb.AppendLine("    /// </ summary > ");
             sb.AppendLine("    public class " + classObjectName);
             sb.AppendLine("    {");
-            sb.AppendLine("        // List of Key Properties that can be used to uniquely identify this WMI Object");
+            sb.AppendLine("        /// List of Key Properties that can be used to uniquely identify this WMI Object");
             sb.AppendLine("        public list<string> KeyProperties = new list<string>();");
             sb.AppendLine();
             foreach (PropertyData propertyData in mc.Properties)
@@ -465,10 +472,40 @@ namespace WMICodeCreator
             });
         }
 
+        /// <summary>
+        /// Formats the description of a property into multi line format
+        /// </summary>
+        /// <param name="desc"></param>
+        /// <returns></returns>
+        private string Generate_Property_Description(string desc)
+        {
+            string description = "";
+
+            return description;
+        }
+
+        /// <summary>
+        /// Formats the description of a class into multi line format
+        /// </summary>
+        /// <param name="desc"></param>
+        /// <returns></returns>
+
+        private string Generate_Class_Description(string desc)
+        {
+            string description = "";
+
+            return description;
+        }
+
         private void label2_Click(object sender, EventArgs e)
         {
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
         }
@@ -498,6 +535,7 @@ namespace WMICodeCreator
         private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
         {
         }
+
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             this.cmbNameSpaces.Items.Clear();
