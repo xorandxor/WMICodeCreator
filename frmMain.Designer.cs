@@ -87,6 +87,8 @@
             this.tabPageSQLStoredProcedures = new System.Windows.Forms.TabPage();
             this.rtbStoredPtrocedures = new System.Windows.Forms.RichTextBox();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -99,6 +101,7 @@
             this.tabPageSQLTable.SuspendLayout();
             this.panel5.SuspendLayout();
             this.tabPageSQLStoredProcedures.SuspendLayout();
+            this.tabPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -157,6 +160,7 @@
             this.toolStripButtonGenerate.Name = "toolStripButtonGenerate";
             this.toolStripButtonGenerate.Size = new System.Drawing.Size(149, 27);
             this.toolStripButtonGenerate.Text = "Generate Code";
+            this.toolStripButtonGenerate.Click += new System.EventHandler(this.toolStripButtonGenerate_Click);
             // 
             // menuStrip1
             // 
@@ -492,6 +496,7 @@
             this.tabControl1.Controls.Add(this.tabPageCSharpCode);
             this.tabControl1.Controls.Add(this.tabPageSQLTable);
             this.tabControl1.Controls.Add(this.tabPageSQLStoredProcedures);
+            this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -538,6 +543,8 @@
             this.rtbCSharp.Size = new System.Drawing.Size(623, 444);
             this.rtbCSharp.TabIndex = 0;
             this.rtbCSharp.Text = "";
+            this.rtbCSharp.TextChanged += new System.EventHandler(this.rtbCSharp_TextChanged);
+            this.rtbCSharp.DoubleClick += new System.EventHandler(this.rtbCSharp_DoubleClick);
             // 
             // tabPageSQLTable
             // 
@@ -609,6 +616,26 @@
             this.rtbStoredPtrocedures.TabIndex = 1;
             this.rtbStoredPtrocedures.Text = "";
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.richTextBox1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 29);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(629, 450);
+            this.tabPage1.TabIndex = 4;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Location = new System.Drawing.Point(3, 3);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(623, 444);
+            this.richTextBox1.TabIndex = 0;
+            this.richTextBox1.Text = "";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -640,6 +667,7 @@
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             this.tabPageSQLStoredProcedures.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -703,6 +731,8 @@
         private System.Windows.Forms.Panel panel5;
         private System.Windows.Forms.TextBox txtDatabaseName;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 

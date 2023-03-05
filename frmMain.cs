@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Management;
 using System.Text;
 using System.Windows.Forms;
@@ -312,6 +313,222 @@ namespace WMICodeCreator
             }
         }
 
+
+
+        private void Generate_Nom_string(object o)
+        {
+            string nameSpaceName = "";
+            string className = "";
+
+            //cross thread update
+            this.cmbNameSpaces.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                nameSpaceName = cmbNameSpaces.Text;
+            });
+
+            //cross thread update
+            this.lstClasses.Invoke((MethodInvoker)delegate
+            {
+                // Running on the UI thread
+                className = lstClasses.SelectedItem.ToString();
+            });
+
+            StringBuilder sb = new StringBuilder();
+            try
+            {
+                // Gets the property qualifiers.
+                ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
+
+                // get the managementclass obj
+                ManagementClass mc = new ManagementClass(nameSpaceName, className, op);
+                mc.Options.UseAmendedQualifiers = true;
+
+                // get collection of instances
+                ManagementObjectCollection mob = mc.GetInstances();
+                try
+                {
+                    sb.AppendLine();
+                    sb.AppendLine("// ==================================================================");
+                    sb.AppendLine("// ");//;
+                    sb.AppendLine("// Report for [" + nameSpaceName + " \\ " + className + "] ");
+                    sb.AppendLine("// ");
+                    sb.AppendLine("// ==================================================================");
+                    sb.AppendLine();
+                    sb.AppendLine("----------------------------------------------------------------");
+                    sb.AppendLine("- Instances: " + mob.Count.ToString());
+                    sb.AppendLine("----------------------------------------------------------------");
+
+                    foreach (ManagementObject mo in mob.Cast<ManagementObject>())
+                    {
+                        sb.AppendLine();
+                        foreach (PropertyData pd in mo.Properties)
+                        {
+                            string val = GetValue(pd);
+                            if (val != "")
+                            {
+                                sb.AppendLine(GetValue(pd));
+                            }
+                            //if (pd.IsArray)
+                            //{
+                            //    sb.Append(pd.Name + " = [array]: ");
+
+                            //    sb.Append("[");
+
+                            //    if (pd.Value != null)
+                            //    {
+                            //        try
+                            //        {
+                            //            foreach (string s in (string[])pd.Value)
+                            //            {
+                            //                sb.Append(s + " | ");
+                            //            }
+                            //        }
+                            //        catch (System.InvalidCastException jank)
+                            //        {
+                            //            sb.Append("Trying to cast to an array failed. Raw Data:");
+                            //            sb.AppendLine(Convert.ToString(pd.Value));
+                            //        }
+                            //    }
+                            //    else
+                            //    {
+                            //        sb.AppendLine("Property value is null");
+                            //    }
+                            //    sb.AppendLine("]");
+                            //}
+                            //else
+                            //{
+                            //    if (pd.Value != null)
+                            //    {
+                            //        sb.AppendLine(pd.Name + " = " + pd.Value);
+                            //    }
+                            //    else { sb.AppendLine(pd.Name + " = Null value"); }
+                            //}
+                        }
+                        sb.AppendLine("--------------------------------------------------------");
+
+
+                        sb.AppendLine();
+                    }
+
+                    //cross thread update
+                    this.richTextBox1.Invoke((MethodInvoker)delegate
+                    {
+                        // Running on the UI thread
+                        richTextBox1.Text = sb.ToString();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+            }
+            catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+        }
+
+        private static string GetValue(PropertyData pd)
+        {
+            string output = pd.Name + ": ";
+
+            try
+            {
+                if (pd.IsArray)
+                {
+                    if (pd.Value == null)
+                    {
+                        output = "";
+                    }
+                    else
+                    {
+                        //uint16 doesnt play nice - there is one in every group
+                        if (pd.Type.ToString().ToLower().Contains("uint16"))
+                        {
+                            UInt16[] nexus = (UInt16[])pd.Value;
+                            foreach (UInt16 i in nexus)
+                            {
+                                output += "" + i.ToString() + ", ";
+                            }
+                        }
+                        
+                        //numeric array
+                        else if (pd.Type.ToString().ToLower().Contains("int") | (pd.Type.ToString().ToLower().Contains("real")))
+                        {
+                            double[] nexus = (double[])pd.Value;
+                            foreach (double d in nexus)
+                            {
+                                output += "" + d.ToString() + ", ";
+                            }
+                        }
+                        // string array
+                        else if (pd.Type.ToString().ToLower().Contains("string"))
+                        {
+                            string[] nexus = (string[])pd.Value;
+                            foreach (string s in nexus)
+                            {
+                                output += "" + s.ToString() + ", ";
+                            }
+
+                        }
+
+                        //object array
+                        else if (pd.Type.ToString().ToLower().Contains("object"))
+                        {
+                            object[] nexus = (object[])pd.Value;
+                            foreach (object s in nexus)
+                            {
+                                output += "" + s.ToString() + ", ";
+                            }
+
+                        }
+                    }
+                }
+                else if (pd.IsArray == false)
+                {
+                    if (pd.Value == null)
+                    {
+                        output = "";
+                    }
+                    else
+                    {
+                        //numeric 
+                        if (pd.Type.ToString().ToLower().Contains("int") | (pd.Type.ToString().ToLower().Contains("real")))
+                        {
+                            output += "" + pd.Value.ToString() + " ";
+                        }
+                        // string 
+                        else if (pd.Type.ToString().ToLower().Contains("string"))
+                        {
+                            {
+                                output += "" + pd.Value.ToString() + " ";
+                            }
+                        }
+
+                        //object 
+                        else if (pd.Type.ToString().ToLower().Contains("object"))
+                        {
+                            {
+                                output += "" + pd.Value.ToString() + " ";
+                            }
+                        }
+
+
+
+
+                    }
+                }
+            }
+            catch(System.NullReferenceException nre )
+            {
+                output = pd.Name + ": null"; 
+            }
+            catch(Exception ex)
+            {
+                output = ex.Message;
+            }
+            return output;
+        }
+
+
         private void Generate_CSharp_Class(object o)
         {
             string nameSpaceName = "";
@@ -336,6 +553,7 @@ namespace WMICodeCreator
             // it will look something like root_cimv2_win32_process
 
             string classObjectName = nameSpaceName.Replace("\\", "_") + "_" + className;
+            classObjectName = classObjectName.ToLower();
 
             StringBuilder sb = new StringBuilder();
             ObjectGetOptions op = new ObjectGetOptions(null, System.TimeSpan.MaxValue, true);
@@ -351,6 +569,7 @@ namespace WMICodeCreator
             }
 
             sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
             sb.AppendLine("using System.Text;");
             sb.AppendLine("using System.Management;");
             sb.AppendLine("using System.IO;");
@@ -360,27 +579,30 @@ namespace WMICodeCreator
             /// <summary>
             ///
             /// </summary>
-            sb.AppendLine("    /// <summary>");
-            sb.AppendLine("    /// " + classDescription);
-            sb.AppendLine("    /// </ summary > ");
+            //sb.AppendLine("    /// <summary>");
+            //sb.AppendLine("    /// " + classDescription);
+            //sb.AppendLine("    /// </ summary > ");
+            sb.Append(Generate_Class_Description(classDescription));
             sb.AppendLine("    public class " + classObjectName);
             sb.AppendLine("    {");
             sb.AppendLine("        /// List of Key Properties that can be used to uniquely identify this WMI Object");
-            sb.AppendLine("        public list<string> KeyProperties = new list<string>();");
+            sb.AppendLine("        public List<string> KeyProperties = new List<string>();");
             sb.AppendLine();
             foreach (PropertyData propertyData in mc.Properties)
             {
+                bool desc_set = false;
                 foreach (QualifierData qd in propertyData.Qualifiers)
                 {
                     if (qd.Name.ToLower() == "description")
                     {
                         string desc = qd.Value.ToString();
-                        if (desc.Length > 120)
-                        {
-                            desc = desc.Substring(0, 120);
-                        }
-                        sb.AppendLine("        // " + desc.Replace("\n", " "));
+                        sb.Append(Generate_Field_Description(desc.Replace("\n", " ")));
+                        desc_set = true;
                     }
+                }
+                if (!desc_set)
+                {
+                    sb.AppendLine("        /// <summary>\n        /// No description found for this property in WMI\n        /// </summary>");
                 }
                 sb.AppendLine("        public " + TypeConvert.CimTypeToSystemType(propertyData.Type.ToString().ToLower()) + " " + propertyData.Name + ";");
                 sb.AppendLine();
@@ -492,9 +714,45 @@ namespace WMICodeCreator
 
         private string Generate_Class_Description(string desc)
         {
-            string description = "";
-
-            return description;
+            string d = "    /// <summary>\n";
+            d += "    /// ";
+            int thisline = 0;
+            foreach (string word in desc.Replace("\n", " ").Split(' '))
+            {
+                d += word + " ";
+                thisline += word.Length + 1;
+                if (thisline > 110)
+                {
+                    d += "\n";
+                    d += "    /// ";
+                    thisline = 0;
+                }
+            }
+            d += "\n";
+            d += "    /// </summary>\n";
+            return d;
+        }
+        private string Generate_Field_Description(string desc)
+        {
+            string d = "        /// <summary>\n";
+            d += "        /// ";
+            int thisline = 0;
+            string[] words = desc.Split(' ');
+            for (int i = 0; i < desc.Split(' ').Length; i++)
+            //            foreach (string word in desc.Split(' '))
+            {
+                d += words[i] + " ";
+                thisline += words[i].Length + 1;
+                if (thisline > 110 && i + 1 < words.Length)
+                {
+                    d += "\n";
+                    d += "        /// ";
+                    thisline = 0;
+                }
+            }
+            d += "\n";
+            d += "        /// </summary>\n";
+            return d;
         }
 
         private void label2_Click(object sender, EventArgs e)
@@ -520,6 +778,9 @@ namespace WMICodeCreator
 
             System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(
                 this.Generate_CSharp_Class));
+
+            System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(
+                this.Generate_Nom_string));
         }
 
         private void rtbSQLTable_DoubleClick(object sender, EventArgs e)
@@ -543,6 +804,30 @@ namespace WMICodeCreator
                 QueueUserWorkItem(
                 new System.Threading.WaitCallback(
                 this.AddNamespacesToTargetList));
+        }
+
+        private string Generate_Fancy_Class_Header(string classname)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("    // ~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-");
+            sb.AppendLine("    // ~-<>-~ " + classname);
+            sb.AppendLine("    // ~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-~-<>-");
+            return sb.ToString();
+        }
+
+        private void rtbCSharp_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void rtbCSharp_DoubleClick(object sender, EventArgs e)
+        {
+            Clipboard.SetText(rtbCSharp.Text);
+            MessageBox.Show("copied!");
+        }
+
+        private void toolStripButtonGenerate_Click(object sender, EventArgs e)
+        {
         }
     }
 }

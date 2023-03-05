@@ -26,6 +26,10 @@
             {
                 output = "double";
             }
+            if (LowerCaseCimType.ToLower().Contains("real64"))
+            {
+                output = "double";
+            }
 
             return output;
         }
