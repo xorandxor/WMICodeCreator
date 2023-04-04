@@ -86,9 +86,9 @@
             this.label3 = new System.Windows.Forms.Label();
             this.tabPageSQLStoredProcedures = new System.Windows.Forms.TabPage();
             this.rtbStoredPtrocedures = new System.Windows.Forms.RichTextBox();
-            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.panel1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
