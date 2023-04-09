@@ -6,10 +6,10 @@ namespace WMICodeCreator
 {
     public class Methods_
     {
-        public int Count { get; set; } = 0;
-        public List<Properties_> InParams { get; set; } = new List<Properties_>();
         public string Name { get; set; }
         public string Origin { get; set; }
+        public int Count { get; set; } = 0;
+        public List<Properties_> InParams { get; set; } = new List<Properties_>();
         public List<Properties_> Outparams { get; set; } = new List<Properties_>();
         public List<Qualifiers_> Qualifiers { get; set; } = new List<Qualifiers_>();
     }
@@ -40,18 +40,39 @@ namespace WMICodeCreator
 
     public class SystemProperties_
     {
-        private bool IsArray { get; set; }
-        private bool IsLocal { get; set; }
-        private string Name { get; set; }
-        private string Origin { get; set; }
-        private List<Qualifiers_> Qualifiers { get; set; } = new List<Qualifiers_>();
-        private object Value { get; set; }
+        public bool IsArray { get; set; }
+         public bool IsLocal { get; set; }
+        public string Name { get; set; }
+        public string Origin { get; set; }
+        public List<Qualifiers_> Qualifiers { get; set; } = new List<Qualifiers_>();
+        public object Value { get; set; }
     }
 
     public class WmiClass
     {
         public WmiClass(ManagementClass mc)
         {
+            foreach(PropertyData pd in mc.SystemProperties)
+            {
+                SystemProperties_ sProps = new SystemProperties_();
+                sProps.Name = pd.Name;
+                sProps.Value = pd.Value;
+                sProps.IsArray = pd.IsArray;
+                sProps.IsLocal = pd.IsLocal;
+                sProps.Origin = pd.Origin;
+                foreach(QualifierData qd in pd.Qualifiers)
+                {
+                    Qualifiers_ q = new Qualifiers_();
+                    q.Name = qd.Name;
+                    q.Value = qd.Value;
+                    q.IsLocal = qd.IsLocal;
+                    q.PropagatesToSubclass = qd.PropagatesToSubclass;
+                    q.PropagatesToinstance = qd.PropagatesToInstance;
+                    this.Qualifiers.Add(q);
+                }
+                this.SystemProperties.Add(sProps);
+                
+            }
             foreach (QualifierData qd in mc.Qualifiers)
             {
                 Qualifiers_ q = new Qualifiers_();
