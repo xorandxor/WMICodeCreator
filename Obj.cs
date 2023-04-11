@@ -76,7 +76,6 @@ namespace WMICodeCreator
             foreach (QualifierData qd in mc.Qualifiers)
             {
                 Qualifiers_ q = new Qualifiers_();
-
                 q.Name = qd.Name;
                 q.IsLocal = qd.IsLocal;
                 q.Value = qd.Value;
@@ -114,7 +113,6 @@ namespace WMICodeCreator
             foreach (MethodData md in mc.Methods)
             {
                 Methods_ m = new Methods_();
-
                 foreach (QualifierData qd in md.Qualifiers)
                 {
                     Qualifiers_ q = new Qualifiers_();
@@ -126,10 +124,8 @@ namespace WMICodeCreator
 
                     this.Qualifiers.Add(q);
                 }
-
                 m.Name = md.Name;
                 m.Origin = md.Origin;
-
                 if (md.InParameters != null)
                 {
                     foreach (PropertyData pd in md.InParameters.Properties)

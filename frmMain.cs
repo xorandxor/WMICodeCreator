@@ -507,7 +507,9 @@ namespace WMICodeCreator
                 }
                 if (!desc_set)
                 {
-                    sb.AppendLine("        /// <summary>\n        /// No description found for this property in WMI\n        /// </summary>");
+                    sb.AppendLine("        /// <summary>\n");
+                    sb.AppendLine("        /// No description found in WMI\n");
+                    sb.AppendLine("        /// </summary>");
                 }
                 sb.AppendLine("        public " + TypeConvert.CimTypeToSystemType(propertyData.Type.ToString().ToLower()) + " " + propertyData.Name + ";");
                 sb.AppendLine();
